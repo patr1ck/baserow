@@ -7,28 +7,29 @@ step-by-step guide that helps you install Baserow from scratch in a scalable way
 
 The app platform doesn't support volumes, and offers horizontal scalability. That means
 the application that runs will be stateless. We will therefore need to create a managed
-PostgreSQL, managed Redis, and a Spaces Object Storage to store all the data. Because
+PostgreSQL, managed Valkey, and a Spaces Object Storage to store all the data. Because
 the app depends on these resources to exist, we have to create those first.
 
 ### Managed PostgreSQL
 
 Navigate to the `Databases` page in the left sidebar of your Digital Ocean dashboard.
-Click on `Create Database` in the top right corner. Choose your region, it's important
-that all the created servers are in the same region, select PostgreSQL v15, and choose
-the server specs you would like to have. Baserow is compatible with 1vCPU and 1GB
-RAM.
+Click on `Create Database Cluster` in the top right corner. Choose your region, it's 
+important that all the created servers are in the same region, select PostgreSQL v15, 
+and choose the server specs you would like to have. Baserow is compatible with 1vCPU 
+and 1GBRAM.
 
 While the database server is being created, you can already find the `Connection
 Details` on the database detail page. Click on the dropdown in that top right corner,
 and switch to `Connection String`. Copy that string because you're going to need it
 later.
 
-### Managed Redis
+### Managed Valkey
 
 Navigate to the `Databases` page in the left sidebar of your Digital Ocean dashboard.
-Click on `Create Database` in the top right corner. Choose your region, it's important
-that all the created servers are in the same region, select Redis v7, and choose the
-server specs you would like to have. Baserow is compatible with 1vCPU and 1GB RAM.
+Click on `Create Database Cluster` in the top right corner. Choose your region, it's 
+important that all the created servers are in the same region, select Valkey v8, and
+choose the server specs you would like to have. Baserow is compatible with 1vCPU 
+and 1GB RAM.
 
 While the database server is being created, you can already find the `Connection
 Details` on the database detail page. Click on the dropdown in that top right corner,
@@ -41,22 +42,23 @@ Navigate to the `Spaces Object Storage` page in the left sidebar of your Digital
 dashboard. Click on `Create Spaces Bucket`. Choose your region, it's important
 that the bucket is created the same region, and create the bucket.
 
-Navigate to the `API` page in the left sidebar of the sidebar, click on the `Spaces
-Keys` tab, click on `Generate New Key`, and create a new key. Copy the `Access Key` and
-`Secret key` because your going to need that later.
+Navigate to the `Settings` tab of the new bucket and scroll down to the  `Acccess
+Keys` section, click on `Create Access Key`, and create a new key. Copy the `Access Key ID` and
+`Access Key Secret` because your going to need that later.
 
 ## Application
 
 Navigate to the `Apps` page in the left sidebar of your Digital Ocean dashboard. Click
-on `Create App`, select `Docker Hub`, and fill out the following:
+on `Create App`, go to the `Container Image` tab, select `Docker Hub`, and fill out 
+the following:
 
 Repository: `baserow/baserow`
 Image tag or digest: `1.33.2`
 
-Click on `Next`, then on the `Edit` button of the `baserow-baserow` web service. Here
-you must change the HTTP Port to 80, and then click on `Back`. Click on the `Next`
-button, and then on `Edit` next to the `baserow-baserow` environment variables. Add the
-following environment variables. Everything between brackets must be replaced.
+Click on `Next`, and on the next page, the resource settings should be shown. Here
+you must change the `Public HTTP port` to 80 (Under `Network`). Then click `Edit` next
+to Environment Variables. Add the following environment variables. Everything between 
+brackets must be replaced.
 
 Generate a unique secret string for `SECRET_KEY` and `BASEROW_JWT_SIGNING_KEY`. This
 can for example be done via https://djecrety.ir/.
@@ -76,7 +78,7 @@ AWS_ACCESS_KEY_ID=(Spaces Access Key)
 AWS_SECRET_ACCESS_KEY=(Spaces Secret key)
 AWS_STORAGE_BUCKET_NAME=(Space name)
 AWS_S3_REGION_NAME=(Spaces region e.g. ams3)
-AWS_S3_ENDPOINT_URL=https://(region).(digitaloceanspaces.com)
+AWS_S3_ENDPOINT_URL=https://(name-of-your-space).(region).(digitaloceanspaces.com)
 AWS_S3_CUSTOM_DOMAIN=(name-of-your-space).(region).(digitaloceanspaces.com)
 DOWNLOAD_FILE_VIA_XHR=1
 ```
@@ -112,7 +114,7 @@ In order for the download button to work in Baserow you would need to configure 
 settings in spaces. Navigate to the created space, go to the `Settings` tab, click on
 `Add` next to the CORS  Configurations, and add the URL of the newly created
 application without a trailing slash, so it must not end with a `/`. Select the `GET`,
-`HEAD` and `OPTIONS` method, and click `Save CORS Configuration`.
+and `HEAD` method, and click `Save CORS Configuration`.
 
 ## Finish
 
